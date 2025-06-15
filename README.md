@@ -1,2 +1,1 @@
-# Kalecilik
-Kiralama Randevusu oluşturmak
+
