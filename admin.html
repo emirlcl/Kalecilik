@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: #1a1a1a;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #00cc66;
+    }
+
+    .card p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 8px 14px;
+      margin-top: 10px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .kabul {
+      background-color: #00cc66;
+      color: white;
+    }
+
+    .red {
+      background-color: #cc0033;
+      color: white;
+    }
+
+    .tek-sil {
+      background-color: #555;
+      color: white;
+    }
+
+    .temizle {
+      background-color: #333;
+      color: white;
+      padding: 10px 16px;
+      margin-top: 40px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 8px;
+    }
+
+    .bos {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #00ff88;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📋 Admin Panel – Randevular</h2>
+  <div id="liste"></div>
+  <button class="temizle" onclick="tumunuSil()">🧹 Tüm Randevuları Sil</button>
+  <a href="index.html">🔙 Randevu Sayfasına Dön</a>
+
+  <script>
+    function listele() {
+      const veriler = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+      const liste = document.getElementById("liste");
+      liste.innerHTML = "";
+
+      if (veriler.length === 0) {
+        liste.innerHTML = "<p class='bos'>Hiç randevu bulunamadı.</p>";
+        return;
+      }
+
+      veriler.forEach((r, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <p><strong>${r.tarih} - ${r.saat}</strong></p>
+          <p><strong>${r.kullanici}</strong> (${r.telefon})</p>
+          <p>${r.aciklama}</p>
+          <p>Durum: ${r.durum}</p>
+          ${r.durum === "beklemede" ? `
+            <button class="kabul" onclick="onayla(${i})">✅ Kabul Et</button>
+            <button class="red" onclick="reddet(${i})">❌ Reddet</button>
+          ` : ""}
+          <button class="tek-sil" onclick="tekSil(${i})">🗑️ Sil</button>
+        `;
+        liste.appendChild(div);
+      });
+    }
+
+    function onayla(i) {
+      const veriler = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+      veriler[i].durum = "kabul edildi";
+      localStorage.setItem("rezervasyonlar", JSON.stringify(veriler));
+      listele();
+    }
+
+    function reddet(i) {
+      const veriler = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+      veriler[i].durum = "reddedildi";
+      localStorage.setItem("rezervasyonlar", JSON.stringify(veriler));
+      listele();
+    }
+
+    function tekSil(i) {
+      const veriler = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+      veriler.splice(i, 1);
+      localStorage.setItem("rezervasyonlar", JSON.stringify(veriler));
+      listele();
+    }
+
+    function tumunuSil() {
+      if (confirm("Tüm randevular silinsin mi? Bu işlem geri alınamaz.")) {
+        localStorage.removeItem("rezervasyonlar");
+        listele();
+      }
+    }
+
+    listele();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randevularım</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ff88;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: #1a1a1a;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #00cc66;
+    }
+
+    .card p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    .bekle { color: orange; }
+    .kabul { color: #00ff88; }
+    .red { color: red; }
+
+    .bos {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #00ff88;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📋 Randevularım</h2>
+  <div id="liste"></div>
+  <a href="index.html">🔙 Randevu Sayfasına Dön</a>
+
+  <script>
+    const kullanici = JSON.parse(localStorage.getItem("kullanici"));
+    if (!kullanici) window.location.href = "kayit.html";
+
+    const rezervasyonlar = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+    const liste = document.getElementById("liste");
+
+    const benimRandevular = rezervasyonlar.filter(r => r.telefon === kullanici.tel);
+
+    if (benimRandevular.length === 0) {
+      liste.innerHTML = "<p class='bos'>Henüz bir randevu oluşturmadınız.</p>";
+    } else {
+      benimRandevular.forEach(r => {
+        const durumClass = r.durum === "beklemede" ? "bekle" :
+                           r.durum === "kabul edildi" ? "kabul" : "red";
+        const durumText = r.durum === "beklemede" ? "⏳ Beklemede" :
+                          r.durum === "kabul edildi" ? "✅ Kabul Edildi" : "❌ Reddedildi";
+
+        const kart = document.createElement("div");
+        kart.className = "card";
+        kart.innerHTML = `
+          <p><strong>${r.tarih} – ${r.saat}</strong></p>
+          <p>${r.aciklama}</p>
+          <p>Durum: <span class="${durumClass}">${durumText}</span></p>
+        `;
+        liste.appendChild(kart);
+      });
+    }
+  </script>
+
+</body>
+</html>

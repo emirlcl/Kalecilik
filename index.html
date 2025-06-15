@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Randevu Al</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a0a;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .form-kutu {
+      background-color: #121212;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .form-kutu h2 {
+      color: #00ff88;
+      margin-bottom: 20px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      background-color: #1e1e1e;
+      color: white;
+      resize: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #00cc66;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00e68a;
+    }
+
+    #mesaj {
+      margin-top: 10px;
+      color: #00ff88;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .randevular-link {
+      margin-top: 20px;
+      color: #00ff88;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-kutu">
+    <h2>Randevu Oluştur</h2>
+    <input type="date" id="tarih" onchange="saatleriYukle()">
+    <select id="saat">
+      <option value="">Saat Seç</option>
+    </select>
+    <textarea id="aciklama" rows="3" placeholder="Sahanın konumu veya açıklama..."></textarea>
+    <button onclick="kaydet()">Randevuyu Gönder</button>
+    <p id="mesaj"></p>
+    <a class="randevular-link" href="durum.html">📋 Randevularımı Gör</a>
+  </div>
+
+  <script>
+    const kullanici = JSON.parse(localStorage.getItem("kullanici"));
+    if (!kullanici) window.location.href = "kayit.html";
+
+    const saatSecenekleri = [
+      "18:00 - 19:00",
+      "19:00 - 20:00",
+      "20:00 - 21:00",
+      "21:00 - 22:00"
+    ];
+
+    function saatleriYukle() {
+      const tarih = document.getElementById("tarih").value;
+      const saatDropdown = document.getElementById("saat");
+      saatDropdown.innerHTML = `<option value="">Saat Seç</option>`;
+
+      if (!tarih) return;
+
+      const rezervasyonlar = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+
+      const doluSaatler = rezervasyonlar
+        .filter(r => r.tarih === tarih && r.durum === "kabul edildi")
+        .map(r => r.saat);
+
+      saatSecenekleri.forEach(saat => {
+        if (!doluSaatler.includes(saat)) {
+          const option = document.createElement("option");
+          option.value = saat;
+          option.textContent = saat;
+          saatDropdown.appendChild(option);
+        }
+      });
+    }
+
+    function kaydet() {
+      const tarih = document.getElementById("tarih").value;
+      const saat = document.getElementById("saat").value;
+      const aciklama = document.getElementById("aciklama").value.trim();
+      const mesaj = document.getElementById("mesaj");
+
+      if (!tarih || !saat || !aciklama) {
+        mesaj.textContent = "Lütfen tüm alanları doldurun.";
+        return;
+      }
+
+      const yeni = {
+        kullanici: kullanici.ad,
+        telefon: kullanici.tel,
+        tarih,
+        saat,
+        aciklama,
+        durum: "beklemede"
+      };
+
+      const liste = JSON.parse(localStorage.getItem("rezervasyonlar")) || [];
+      liste.push(yeni);
+      localStorage.setItem("rezervasyonlar", JSON.stringify(liste));
+
+      mesaj.innerHTML = "✅ Randevunuz alınmıştır. Onay bekliyor... ⏳📩";
+
+      document.getElementById("saat").selectedIndex = 0;
+      document.getElementById("aciklama").value = "";
+    }
+  </script>
+
+</body>
+</html>
